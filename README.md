@@ -1,4 +1,4 @@
-# Nexo: directorio de clientes
+# Nexo: directorio de clientes v2
 
 Aplicación web en Python para administrar un directorio de clientes. Usa Flask para servir la interfaz y SQLite para conservar los datos localmente.
 
