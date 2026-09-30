@@ -2,7 +2,7 @@
 
 Aplicación web en Python para administrar un directorio de clientes. Usa Flask para servir la interfaz y SQLite para conservar los datos localmente.
 
-## Funcionalidades
+## Funcionalidades v2
 
 - Crear clientes con nombre, empresa, correo electrónico, teléfono y notas. El nombre es obligatorio; los demás campos son opcionales.
 - Consultar y ordenar el directorio por nombre.
