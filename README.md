@@ -13,4 +13,10 @@ python app.py
 
 Abre http://127.0.0.1:5000. La base de datos se crea automáticamente al iniciar.
 
+## Ejecutar las pruebas
+
+```bash
+python -m unittest discover -s tests -v
+```
+
 Antes de desplegar, define una clave secreta propia en la variable de entorno `SECRET_KEY` y ejecuta la aplicación detrás de un servidor WSGI de producción.
