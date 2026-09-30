@@ -11,7 +11,7 @@ Aplicación web en Python para administrar un directorio de clientes. Usa Flask 
 - Ver un resumen con el número de clientes, los que tienen correo y las empresas registradas.
 - Proteger las operaciones de escritura con tokens CSRF.
 
-## Estructura del repositorio
+## Estructura del repositorio v2
 
 ```text
 .
