@@ -5,7 +5,6 @@ from pathlib import Path
 from flask import Flask, flash, redirect, render_template, request, url_for
 from flask_wtf.csrf import CSRFProtect
 
-
 app = Flask(__name__)
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "local-dev-key-change-before-deploy")
 app.config["DATABASE"] = Path(__file__).with_name("clientes.db")
