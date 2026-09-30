@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#173c36">
+  <title>Clientes | Nexo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="{{ url_for('index') }}" aria-label="Nexo, inicio">
+      <span class="brand-mark" aria-hidden="true">N</span>
+      <span>Nexo<span class="brand-dot">.</span></span>
+    </a>
+    <div class="topbar-context"><span class="status-dot"></span> Gestión de clientes</div>
+  </header>
+
+  <main class="workspace">
+    <section class="page-heading" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">RELACIONES</p>
+        <h1 id="page-title">Directorio de clientes</h1>
+        <p class="page-subtitle">Toda tu cartera, clara y al día.</p>
+      </div>
+      <button class="button button-primary" id="add-client" type="button">
+        <span class="button-plus" aria-hidden="true">+</span> Agregar cliente
+      </button>
+    </section>
+
+    <section class="metrics" aria-label="Resumen de clientes">
+      <div class="metric">
+        <span class="metric-label">CLIENTES EN TOTAL</span>
+        <strong>{{ total }}</strong>
+      </div>
+      <div class="metric">
+        <span class="metric-label">CON CORREO</span>
+        <strong>{{ with_email }}</strong>
+      </div>
+      <div class="metric">
+        <span class="metric-label">EMPRESAS</span>
+        <strong>{{ companies }}</strong>
+      </div>
+      <div class="metric-note"><span class="metric-note-mark">↗</span> Tu cartera, en un solo lugar</div>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="alerts" aria-live="polite">
+          {% for category, message in messages %}
+            <p class="alert alert-{{ category }}">{{ message }}</p>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <section class="directory" aria-labelledby="directory-title">
+      <div class="directory-heading">
+        <div>
+          <h2 id="directory-title">Clientes</h2>
+          <p>{{ clientes|length }} resultado{% if clientes|length != 1 %}s{% endif %}{% if search %} para “{{ search }}”{% endif %}</p>
+        </div>
+        <form class="search-form" action="{{ url_for('index') }}" method="get" role="search">
+          <label class="visually-hidden" for="search">Buscar clientes</label>
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <input id="search" name="q" type="search" value="{{ search }}" placeholder="Buscar cliente...">
+          {% if search %}<a class="clear-search" href="{{ url_for('index') }}" aria-label="Limpiar búsqueda">×</a>{% endif %}
+        </form>
+      </div>
+
+      {% if clientes %}
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th scope="col">CLIENTE</th>
+                <th scope="col">EMPRESA</th>
+                <th scope="col">CORREO</th>
+                <th scope="col">TELÉFONO</th>
+                <th scope="col"><span class="visually-hidden">Acciones</span></th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for cliente in clientes %}
+                <tr>
+                  <td>
+                    <div class="client-cell">
+                      <span class="avatar avatar-{{ loop.index0 % 5 }}" aria-hidden="true">{{ cliente.nombre[:1]|upper }}</span>
+                      <span class="client-name">{{ cliente.nombre }}</span>
+                    </div>
+                  </td>
+                  <td>{{ cliente.empresa or '—' }}</td>
+                  <td>{% if cliente.correo %}<a class="contact-link" href="mailto:{{ cliente.correo }}">{{ cliente.correo }}</a>{% else %}—{% endif %}</td>
+                  <td>{% if cliente.telefono %}<a class="contact-link" href="tel:{{ cliente.telefono }}">{{ cliente.telefono }}</a>{% else %}—{% endif %}</td>
+                  <td class="actions-cell">
+                    <button class="text-action edit-client" type="button"
+                      data-id="{{ cliente.id }}"
+                      data-nombre="{{ cliente.nombre }}"
+                      data-empresa="{{ cliente.empresa }}"
+                      data-correo="{{ cliente.correo }}"
+                      data-telefono="{{ cliente.telefono }}"
+                      data-notas="{{ cliente.notas }}">Editar</button>
+                    <form action="{{ url_for('delete_client', client_id=cliente.id) }}" method="post" class="delete-form">
+                      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                      <button class="text-action text-danger" type="submit">Eliminar</button>
+                    </form>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div class="empty-state">
+          <span class="empty-mark" aria-hidden="true">N</span>
+          {% if search %}
+            <h3>No encontramos coincidencias</h3>
+            <p>Prueba con otro nombre, empresa o dato de contacto.</p>
+            <a class="button button-secondary" href="{{ url_for('index') }}">Ver todos los clientes</a>
+          {% else %}
+            <h3>Tu directorio empieza aquí</h3>
+            <p>Agrega tu primer cliente para tener sus datos organizados.</p>
+            <button class="button button-secondary" type="button" data-open-create>Agregar primer cliente</button>
+          {% endif %}
+        </div>
+      {% endif %}
+      <footer class="table-footer"><span>Mostrando {{ clientes|length }} de {{ total }} clientes</span><span>Directorio Nexo</span></footer>
+    </section>
+    <p class="page-footnote">Los datos se guardan localmente en esta aplicación.</p>
+  </main>
+
+  <dialog class="client-dialog" id="client-dialog" aria-labelledby="dialog-title">
+    <form action="{{ url_for('save_client') }}" method="post" id="client-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="id" id="client-id">
+      <div class="dialog-heading">
+        <div><p class="eyebrow">DIRECTORIO</p><h2 id="dialog-title">Agregar cliente</h2></div>
+        <button class="dialog-close" type="button" aria-label="Cerrar">×</button>
+      </div>
+      <div class="form-grid">
+        <label class="field field-wide">Nombre completo <span class="required">*</span>
+          <input name="nombre" id="client-name" type="text" maxlength="120" autocomplete="name" required>
+        </label>
+        <label class="field field-wide">Empresa
+          <input name="empresa" id="client-company" type="text" maxlength="120" autocomplete="organization">
+        </label>
+        <label class="field">Correo electrónico
+          <input name="correo" id="client-email" type="email" maxlength="160" autocomplete="email">
+        </label>
+        <label class="field">Teléfono
+          <input name="telefono" id="client-phone" type="tel" maxlength="40" autocomplete="tel">
+        </label>
+        <label class="field field-wide">Notas
+          <textarea name="notas" id="client-notes" rows="3" maxlength="1000"></textarea>
+        </label>
+      </div>
+      <div class="dialog-actions">
+        <button class="button button-quiet" type="button" id="cancel-dialog">Cancelar</button>
+        <button class="button button-primary" type="submit">Guardar cliente</button>
+      </div>
+    </form>
+  </dialog>
+  <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+</body>
+</html>
